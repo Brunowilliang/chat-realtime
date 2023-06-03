@@ -1,7 +1,7 @@
 ## Chat realtime with React Native and Expo
 
-![Chat1](https://github.com/Brunowilliang/chat-realtime/assets/41432581/99f25039-aef5-42ca-abe6-2e8e7c70f937)
-![Chat2](https://github.com/Brunowilliang/chat-realtime/assets/41432581/5e5a14ab-a489-4b3d-8ee3-df07134edcb7)
+
+<img src="https://github.com/Brunowilliang/chat-realtime/assets/41432581/99f25039-aef5-42ca-abe6-2e8e7c70f937" width="400"> <img src="https://github.com/Brunowilliang/chat-realtime/assets/41432581/5e5a14ab-a489-4b3d-8ee3-df07134edcb7" width="400">
 
 
 ### Technologies:
