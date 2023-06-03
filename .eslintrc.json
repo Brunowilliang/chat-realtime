@@ -1,0 +1,12 @@
+{
+  "extends": [
+    "@rocketseat/eslint-config/react"
+  ],
+  "rules": {
+    "camelcase": "off",
+    "react-hooks/exhaustive-deps": "off"
+  },
+  "plugins": [
+    "react-hooks"
+  ]
+}
