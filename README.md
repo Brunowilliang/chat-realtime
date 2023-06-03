@@ -1,5 +1,9 @@
 ## Chat realtime with React Native and Expo
 
+![Chat1](https://github.com/Brunowilliang/chat-realtime/assets/41432581/99f25039-aef5-42ca-abe6-2e8e7c70f937)
+![Chat2](https://github.com/Brunowilliang/chat-realtime/assets/41432581/5e5a14ab-a489-4b3d-8ee3-df07134edcb7)
+
+
 ### Technologies:
 <img src="https://img.shields.io/badge/React%20Native-0.71.8-0077B5?style=flat-square&logo=react&logoColor=white" alt="React Native" /> <img src="https://img.shields.io/badge/Typescript-4.9.4-0077B5?style=flat-square&logo=typescript&logoColor=white" alt="Typescript" /> <img src="https://img.shields.io/badge/Expo-48.0.15-0077B5?style=flat-square&logo=expo&logoColor=white" alt="Expo" /> <img src="https://img.shields.io/badge/Expo%20Router-1.5.3-0077B5?style=flat-square&logo=expo&logoColor=white" alt="Expo Router" /> <img src="https://img.shields.io/badge/Zustand-4.3.8-0077B5?style=flat-square&logo=zustand&logoColor=white" alt="Zustand" /> <img src="https://img.shields.io/badge/Pocketbase-0.15.0-0077B5?style=flat-square&logo=pocketbase&logoColor=white"
   alt="Pocketbase" />
