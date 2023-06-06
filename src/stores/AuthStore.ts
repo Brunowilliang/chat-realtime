@@ -2,11 +2,12 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import api from '~/lib/api'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { Collections, UsersResponse } from '~/types/types'
+import { Collections } from '~/types/types'
+import { IUserProps } from '~/types/interface'
 
 interface AuthState {
-  user: UsersResponse | null
-  setUser: (user: UsersResponse | null) => void
+  user: IUserProps | null
+  setUser: (user: IUserProps | null) => void
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
@@ -15,7 +16,7 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      setUser: (user: UsersResponse | null) => set({ user }),
+      setUser: (user: IUserProps | null) => set({ user }),
       login: async (email: string, password: string) => {
         await api
           .collection(Collections.Users)

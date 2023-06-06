@@ -5,65 +5,46 @@ import {
   Center,
   FlatList,
   HStack,
-  Input,
   KeyboardAvoidingView,
 } from 'native-base'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import Header from '~/components/header'
 import Pressable from '~/components/pressable'
 import Text from '~/components/text'
 import Toast from '~/components/toast'
 import api from '~/lib/api'
 import { useAuthStore } from '~/stores/AuthStore'
-import { colors, fonts } from '~/styles/theme'
-import { Collections, MessagesResponse, UsersResponse } from '~/types/types'
+import { colors } from '~/styles/theme'
+import { Collections } from '~/types/types'
 import { PaperPlaneTilt } from 'phosphor-react-native'
-
-type expand = {
-  sender: UsersResponse
-  receiver: UsersResponse
-}
+import BoxMessage from '~/components/boxMessage'
+import useGetMessages from '~/hooks/useGetMessages'
+import useGetUser from '~/hooks/useGetUser'
+import Input from '~/components/input'
 
 export default function Page() {
   const { user } = useAuthStore()
-  const { id } = useSearchParams()
-
-  const [messages, setMessages] = useState<MessagesResponse<expand>[]>([])
-  const [receiverData, setReceiverData] = useState<UsersResponse | null>(null)
+  const { id: receiverId } = useSearchParams()
   const [text, setText] = useState('')
-  const [sender] = useState(user?.id)
-  const [receiver] = useState(id)
-  const [isLoading, setIsLoading] = useState(false)
 
-  const getReceiver = async () => {
-    try {
-      const data = await api.collection('users').getOne(`${receiver}`)
-      setReceiverData(data as any)
-      console.log(data)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  const {
+    data: receiver,
+    isLoading: isLoadingReceiver,
+    // refetch: refetchReceiver,
+  } = useGetUser(receiverId as string)
 
-  const getMessages = async () => {
-    try {
-      const data = await api.collection(Collections.Messages).getFullList(200, {
-        expand: 'sender,receiver',
-        filter: `sender.id='${sender}' && receiver.id='${receiver}' || sender.id='${receiver}' && receiver.id='${sender}'`,
-        sort: '-created',
-      })
-      setMessages(data as any)
-    } catch (error) {
-      console.log(error)
-    }
-  }
+  const {
+    data: messages,
+    isLoading: isLoadingMessages,
+    refetch: refetchMessages,
+  } = useGetMessages(user?.id as string, receiver?.id as string)
 
   const sendMessage = async () => {
     try {
       await api.collection(Collections.Messages).create({
         text,
-        sender,
-        receiver,
+        sender: user?.id,
+        receiver: receiver?.id,
       })
       setText('')
     } catch (error) {
@@ -79,31 +60,22 @@ export default function Page() {
         description: 'Message deleted successfully!',
         type: 'success',
       })
-      getMessages()
     } catch (error) {
       console.log(error)
-      Toast({
-        message: 'Error',
-        description: 'Error deleting message!',
-        type: 'danger',
-      })
     }
   }
 
   useFocusEffect(
     useCallback(() => {
       const fetchData = async () => {
-        setIsLoading(true)
         try {
           await api.collection(Collections.Messages).subscribe('*', (e) => {
             console.log('event', e)
-            getMessages()
+            refetchMessages()
           })
           console.log('subscribed')
         } catch (error) {
           console.log('error subscribed', error)
-        } finally {
-          setIsLoading(false)
         }
       }
 
@@ -120,40 +92,26 @@ export default function Page() {
     }, []),
   )
 
-  console.log(
-    `https://anonchat.fly.dev/api/files/_pb_users_auth_/${receiverData?.id}/${receiverData?.avatar}`,
-  )
-
-  useEffect(() => {
-    const fetchData = async () => {
-      await getMessages()
-      await getReceiver()
-      setIsLoading(false)
-    }
-
-    fetchData()
-  }, [])
-
   return (
     <>
       <Header
         back
+        safeArea
         height={180}
+        title={'Chat'}
+        subtitle={receiver?.name}
         leftComponent={
-          isLoading ? null : (
+          isLoadingReceiver ? null : (
             <Avatar
               mr={2}
               size={12}
               source={{
                 cache: 'force-cache',
-                uri: `https://anonchat.fly.dev/api/files/_pb_users_auth_/${receiverData?.id}/${receiverData?.avatar}`,
+                uri: `https://anonchat.fly.dev/api/files/_pb_users_auth_/${receiver?.id}/${receiver?.avatar}`,
               }}
             />
           )
         }
-        safeArea
-        title={isLoading ? ' ' : 'Chat'}
-        subtitle={isLoading ? ' ' : receiverData?.name}
       />
       <Box borderTopRadius={20} mt={-8} flex={1} bg={colors.white}>
         <FlatList
@@ -164,34 +122,13 @@ export default function Page() {
           ItemSeparatorComponent={() => <Box h={2} />}
           _contentContainerStyle={{ p: 5 }}
           renderItem={({ item }) => (
-            <Pressable
-              width={'full'}
-              alignItems={item.sender === sender ? 'flex-end' : 'flex-start'}
-              onLongPress={() => deleteMessage(item.id)}
-            >
-              <Text px={2} h6 color={colors.grey600}>
-                {item?.expand?.sender?.id === sender
-                  ? 'You'
-                  : item?.expand?.sender?.name}
-              </Text>
-              <Box
-                py={2.5}
-                px={4}
-                bg={
-                  item.sender === sender
-                    ? colors.orangeOpacity
-                    : colors.yellowOpacity
-                }
-                borderRadius={20}
-                borderBottomLeftRadius={item.sender === sender ? 20 : 0}
-                borderBottomRightRadius={item.sender === sender ? 0 : 20}
-              >
-                <Text color={colors.black}>{item.text}</Text>
-              </Box>
-            </Pressable>
+            <BoxMessage
+              item={item}
+              deleteMessage={() => deleteMessage(item.id)}
+            />
           )}
           ListEmptyComponent={
-            isLoading ? (
+            isLoadingMessages ? (
               <Center flex={1}>
                 <Text h5>Loading messages...</Text>
               </Center>
@@ -207,26 +144,10 @@ export default function Page() {
       <KeyboardAvoidingView
         behavior="padding"
         keyboardVerticalOffset={10}
-        pb={3}
-        bg={colors.white}
+        bg={colors.transparent}
       >
-        <HStack px={5} bg={colors.transparent}>
+        <HStack px={5} bg={colors.white}>
           <Input
-            flex={1}
-            fontFamily={fonts.medium}
-            fontSize={15}
-            allowFontScaling={false}
-            borderRadius={30}
-            multiline
-            maxHeight={120}
-            p={5}
-            _focus={{
-              borderColor: colors.black,
-              borderWidth: 1,
-              bg: colors.white,
-              color: colors.black,
-              placeholderTextColor: colors.black,
-            }}
             value={text}
             onChangeText={(value) => setText(value)}
             placeholder="Type a message..."
