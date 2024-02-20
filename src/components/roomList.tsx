@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { Avatar, VStack } from 'native-base'
 import Pressable from './pressable'
 import Text from './text'
-import { IMessagesProps, IRoomProps } from '~/types/interface'
+import { IMessagesProps } from '~/types/interface'
 import { useAuthStore } from '~/stores/AuthStore'
 import { useRouter } from 'expo-router'
 import { colors } from '~/styles/theme'
@@ -51,7 +51,7 @@ export default function RoomList({ item }: Props) {
           {currentUser ? receiver?.name : sender?.name}
         </Text>
         <Text h5 color={colors.gray}>
-          {currentUser ? 'Você: ' : ''}
+          {currentUser ? 'You: ' : ''}
           {item.text}
         </Text>
       </VStack>
